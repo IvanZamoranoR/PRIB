@@ -1,5 +1,5 @@
 ---
-title: "Code"
+title: "PRIB Hackathon"
 output: html_document
 date: "2024-08-05"
 ---
@@ -41,7 +41,7 @@ Merge por house id (variable FPimary)
 Utilziar houseid, checar el father work y mother work distribución por región en nestlé 
 
 
-#Ghana Plot: Father/Mother work
+#Father/Mother work plot: Ghana
 
 ```{r Chunk_4}
 fatherwork_counts <- table(consumption$fatherwork)
@@ -68,7 +68,7 @@ ggplot(motherwork_df, aes(x = "", y = Freq, fill = Var1)) +
 ```
 
 
-## Ghana father/mother work percentages 
+## Father/mother work percentages: Ghana
 
 ```{r pressure, echo=FALSE}
 # Function to calculate percentages for a categorical variable
@@ -94,33 +94,51 @@ cat("Percentages for Motherwork Categories:\n")
 print(motherwork_percentages)
 ```
 
+#Ghana regions distribution
+
+
+```{r chunk_6}
+# Count the values for whereborn_region
+whereborn_region_counts <- table(consumption$whereborn_region)
+
+# Print the counts for whereborn_region
+cat("Counts for Whereborn Region Categories:\n")
+(whereborn_region_counts)
+
+# Calculate percentages for whereborn_region
+whereborn_region_percentages <- round(whereborn_region_counts / sum(whereborn_region_counts) * 100, 1)
+
+# Print the percentages for whereborn_region
+cat("Percentages for Whereborn Region Categories:\n")
+whereborn_region_percentages
+```
+
+#Father/Mother work plot: Ghana by region (whereborn_region)
 
 
 
-
-
-```{r pressure, echo=FALSE}
-# Function to calculate percentages for a categorical variable
-calculate_percentages <- function(counts) {
-  percentages <- round(counts / sum(counts) * 100, 1)
-  return(percentages)
-}
-
-# Count the categories and calculate percentages for fatherwork
+```{r chunk_7}
 fatherwork_counts <- table(consumption$fatherwork)
-fatherwork_percentages <- calculate_percentages(fatherwork_counts)
 
-# Count the categories and calculate percentages for motherwork
+# Create a pie chart for fatherwork
+fatherwork_df <- as.data.frame(fatherwork_counts)
+ggplot(fatherwork_df, aes(x = "", y = Freq, fill = Var1)) +
+  geom_bar(width = 1, stat = "identity") +
+  coord_polar("y", start = 0) +
+  labs(title = "Fatherwork Categories") +
+  theme_void()
+
+# Count the categories for motherwork
 motherwork_counts <- table(consumption$motherwork)
-motherwork_percentages <- calculate_percentages(motherwork_counts)
 
-# Print the percentages for fatherwork
-cat("Percentages for Fatherwork Categories:\n")
-print(fatherwork_percentages)
+# Create a pie chart for motherwork
+motherwork_df <- as.data.frame(motherwork_counts)
+ggplot(motherwork_df, aes(x = "", y = Freq, fill = Var1)) +
+  geom_bar(width = 1, stat = "identity") +
+  coord_polar("y", start = 0) +
+  labs(title = "Motherwork Categories") +
+  theme_void()
 
-# Print the percentages for motherwork
-cat("Percentages for Motherwork Categories:\n")
-print(motherwork_percentages)
 ```
 
 
