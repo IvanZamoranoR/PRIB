@@ -4,28 +4,123 @@ output: html_document
 date: "2024-08-05"
 ---
 
-## Test
-
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
+## Libraries and setting working directory
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+```{r Chunk_1}
+library(tidyverse)
+library(ggplot2)
+folder_path <- "/Users/ivanzamorano/Desktop/PRIB" # use your own path here
+setwd(folder_path) # passing the object into the function
 ```
 
-## Including Plots
+## Reading in the files
 
-You can also embed plots, for example:
+
+```{r Chunk_2}
+background <- read_csv("assets_01d_background.csv")
+consumption <- read_csv("assets_01d_background.csv")
+durable_goods <- read_csv("assets_01d_background.csv")
+food_consumption <- read_csv("assets_11a_foodconsumption_prod_purch.csv")
+education <- read_csv("education_merged.csv")
+```
+
+
+```{r chunk_3}
+summary(background) #Summary for background data
+summary(consumption) #Summary for consumption data
+summary(education) #Summary for education
+summary(food_consumption) #Summary for food consumption
+summary(durable_goods) 
+```
+Merge por house id (variable FPimary)
+Utilziar houseid, checar el father work y mother work distribución por región en nestlé 
+
+
+#Ghana Plot: Father/Mother work
+
+```{r Chunk_4}
+fatherwork_counts <- table(consumption$fatherwork)
+
+# Create a pie chart for fatherwork
+fatherwork_df <- as.data.frame(fatherwork_counts)
+ggplot(fatherwork_df, aes(x = "", y = Freq, fill = Var1)) +
+  geom_bar(width = 1, stat = "identity") +
+  coord_polar("y", start = 0) +
+  labs(title = "Fatherwork Categories") +
+  theme_void()
+
+# Count the categories for motherwork
+motherwork_counts <- table(consumption$motherwork)
+
+# Create a pie chart for motherwork
+motherwork_df <- as.data.frame(motherwork_counts)
+ggplot(motherwork_df, aes(x = "", y = Freq, fill = Var1)) +
+  geom_bar(width = 1, stat = "identity") +
+  coord_polar("y", start = 0) +
+  labs(title = "Motherwork Categories") +
+  theme_void()
+
+```
+
+
+## Ghana father/mother work percentages 
 
 ```{r pressure, echo=FALSE}
-plot(pressure)
+# Function to calculate percentages for a categorical variable
+calculate_percentages <- function(counts) {
+  percentages <- round(counts / sum(counts) * 100, 1)
+  return(percentages)
+}
+
+# Count the categories and calculate percentages for fatherwork
+fatherwork_counts <- table(consumption$fatherwork)
+fatherwork_percentages <- calculate_percentages(fatherwork_counts)
+
+# Count the categories and calculate percentages for motherwork
+motherwork_counts <- table(consumption$motherwork)
+motherwork_percentages <- calculate_percentages(motherwork_counts)
+
+# Print the percentages for fatherwork
+cat("Percentages for Fatherwork Categories:\n")
+print(fatherwork_percentages)
+
+# Print the percentages for motherwork
+cat("Percentages for Motherwork Categories:\n")
+print(motherwork_percentages)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+
+
+
+
+```{r pressure, echo=FALSE}
+# Function to calculate percentages for a categorical variable
+calculate_percentages <- function(counts) {
+  percentages <- round(counts / sum(counts) * 100, 1)
+  return(percentages)
+}
+
+# Count the categories and calculate percentages for fatherwork
+fatherwork_counts <- table(consumption$fatherwork)
+fatherwork_percentages <- calculate_percentages(fatherwork_counts)
+
+# Count the categories and calculate percentages for motherwork
+motherwork_counts <- table(consumption$motherwork)
+motherwork_percentages <- calculate_percentages(motherwork_counts)
+
+# Print the percentages for fatherwork
+cat("Percentages for Fatherwork Categories:\n")
+print(fatherwork_percentages)
+
+# Print the percentages for motherwork
+cat("Percentages for Motherwork Categories:\n")
+print(motherwork_percentages)
+```
+
+
