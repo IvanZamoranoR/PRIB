@@ -30,12 +30,32 @@ education <- read_csv("education_merged.csv")
 ```
 
 
-```{r chunk_3}
+## Merge data
+
+
+```{r Chunk_3}
+
+# Horizontal merge using merge function
+merged_data_assets_1 <- merge(background, consumption, by = "FPrimary", all.x = TRUE)
+merged_data_assets_2 <- merge(merged_data_assets_1, food_consumption, by = "FPrimary", all.x = TRUE )
+#memory.limit(size = 32000)
+
+#merged_data_assets_3 <- merge(merged_data_assets_2, food_consumption, by = "FPrimary", all.x = TRUE )
+
+#merged_data_assets_education <- merge(merged_data_assets_3, education, by = "FPrimary", all.x = TRUE)
+
+
+```
+
+
+# Summaries 
+
+```{r chunk_3.1}
 summary(background) #Summary for background data
 summary(consumption) #Summary for consumption data
 summary(education) #Summary for education
 summary(food_consumption) #Summary for food consumption
-summary(durable_goods) 
+
 ```
 Merge por house id (variable FPimary)
 Utilziar houseid, checar el father work y mother work distribución por región en nestlé 
@@ -44,7 +64,7 @@ Utilziar houseid, checar el father work y mother work distribución por región 
 #Father/Mother work plot: Ghana
 
 ```{r Chunk_4}
-fatherwork_counts <- table(consumption$fatherwork)
+fatherwork_counts <- table(merged_data_assets_2$fatherwork)
 
 # Create a pie chart for fatherwork
 fatherwork_df <- as.data.frame(fatherwork_counts)
@@ -55,7 +75,7 @@ ggplot(fatherwork_df, aes(x = "", y = Freq, fill = Var1)) +
   theme_void()
 
 # Count the categories for motherwork
-motherwork_counts <- table(consumption$motherwork)
+motherwork_counts <- table(merged_data_assets_2$motherwork)
 
 # Create a pie chart for motherwork
 motherwork_df <- as.data.frame(motherwork_counts)
@@ -78,11 +98,11 @@ calculate_percentages <- function(counts) {
 }
 
 # Count the categories and calculate percentages for fatherwork
-fatherwork_counts <- table(consumption$fatherwork)
+fatherwork_counts <- table(merged_data_assets_2$fatherwork)
 fatherwork_percentages <- calculate_percentages(fatherwork_counts)
 
 # Count the categories and calculate percentages for motherwork
-motherwork_counts <- table(consumption$motherwork)
+motherwork_counts <- table(merged_data_assets_2$motherwork)
 motherwork_percentages <- calculate_percentages(motherwork_counts)
 
 # Print the percentages for fatherwork
@@ -92,6 +112,8 @@ print(fatherwork_percentages)
 # Print the percentages for motherwork
 cat("Percentages for Motherwork Categories:\n")
 print(motherwork_percentages)
+
+
 ```
 
 #Ghana regions distribution
@@ -99,7 +121,7 @@ print(motherwork_percentages)
 
 ```{r chunk_6}
 # Count the values for whereborn_region
-whereborn_region_counts <- table(consumption$whereborn_region)
+whereborn_region_counts <- table(merged_data_assets_2$whereborn_region)
 
 # Print the counts for whereborn_region
 cat("Counts for Whereborn Region Categories:\n")
@@ -113,32 +135,294 @@ cat("Percentages for Whereborn Region Categories:\n")
 whereborn_region_percentages
 ```
 
-#Father/Mother work plot: Ghana by region (whereborn_region)
-
-
+#Father/Mother work plot: Ghana by region (whereborn_region) - Northern
 
 ```{r chunk_7}
-fatherwork_counts <- table(consumption$fatherwork)
+married <- subset(merged_data_assets_2, maritalstatus == "Married")
+
+married_fatherwork_counts <- table(married$fatherwork)
 
 # Create a pie chart for fatherwork
-fatherwork_df <- as.data.frame(fatherwork_counts)
-ggplot(fatherwork_df, aes(x = "", y = Freq, fill = Var1)) +
+married_fatherwork_df <- as.data.frame(married_fatherwork_counts)
+ggplot(married_fatherwork_df, aes(x = "", y = Freq, fill = Var1)) +
   geom_bar(width = 1, stat = "identity") +
   coord_polar("y", start = 0) +
   labs(title = "Fatherwork Categories") +
   theme_void()
 
 # Count the categories for motherwork
-motherwork_counts <- table(consumption$motherwork)
+married_motherwork_counts <- table(married$motherwork)
 
 # Create a pie chart for motherwork
-motherwork_df <- as.data.frame(motherwork_counts)
+married_motherwork_df <- as.data.frame(married_motherwork_counts)
 ggplot(motherwork_df, aes(x = "", y = Freq, fill = Var1)) +
   geom_bar(width = 1, stat = "identity") +
   coord_polar("y", start = 0) +
   labs(title = "Motherwork Categories") +
   theme_void()
 
+
+# Count the categories and calculate percentages for fatherwork
+married_fatherwork_percentages <- calculate_percentages(married_fatherwork_counts)
+
+married_motherwork_percentages <- calculate_percentages(married_motherwork_counts)
+
+# Print the percentages for fatherwork
+cat("Percentages for Fatherwork Categories:\n")
+print(married_fatherwork_percentages)
+
+# Print the percentages for motherwork
+cat("Percentages for Motherwork Categories:\n")
+print(married_motherwork_percentages)
 ```
+
+
+
+#Father/Mother work plot: Ghana by region (whereborn_region) - Ashanti 
+
+
+
+#Father/Mother work plot: Ghana by region (whereborn_region) - Eastern 
+
+
+
+
+#Father/Mother work plot: Ghana by region (whereborn_region) - Brong Ahafo 
+
+
+
+
+Hacer el match de cuantos fathers y mothers hacen matching en los trabajos que tienen, hacer una matriz en donde se vea si están casados, etc,
+
+
+
+
+
+```{r chunk_18}
+merged_data_assets_2 <- merged_data_assets_2 %>%
+  group_by(FPrimary) %>%
+  mutate(Together = ifelse(maritalstatus == "Married" & n() > 1, 1, 0))
+
+
+# Output the modified data frame
+print(merged_data_assets_2)
+
+# Now the Together column will contain 1 where the conditions are met, otherwise 0
+Tog<-merged_data_assets_2$Together
+
+summary(Tog)
+
+Tog
+
+Married_tog <- subset(merged_data_assets_2, Together == "1")
+
+married_tog_fatherwork_counts <- table(Married_tog$fatherwork)
+
+# Create a pie chart for fatherwork
+married_tog_fatherwork_df <- as.data.frame(married_tog_fatherwork_counts)
+ggplot(married_tog_fatherwork_df, aes(x = "", y = Freq, fill = Var1)) +
+  geom_bar(width = 1, stat = "identity") +
+  coord_polar("y", start = 0) +
+  labs(title = "Fatherwork Categories") +
+  theme_void()
+
+# Count the categories for motherwork
+married_tog_motherwork_counts <- table(Married_tog$motherwork)
+
+# Create a pie chart for motherwork
+married_tog_motherwork_df <- as.data.frame(married_tog_motherwork_counts)
+ggplot(married_motherwork_df, aes(x = "", y = Freq, fill = Var1)) +
+  geom_bar(width = 1, stat = "identity") +
+  coord_polar("y", start = 0) +
+  labs(title = "Motherwork Categories") +
+  theme_void()
+
+
+# Count the categories and calculate percentages for fatherwork
+married_tog_fatherwork_percentages <- calculate_percentages(married_tog_fatherwork_counts)
+
+married_tog_motherwork_percentages <- calculate_percentages(married_tog_motherwork_counts)
+
+# Print the percentages for fatherwork
+cat("Percentages for Fatherwork Categories:\n")
+print(married_tog_fatherwork_percentages)
+
+# Print the percentages for motherwork
+cat("Percentages for Motherwork Categories:\n")
+print(married_tog_motherwork_percentages)
+
+```
+
+
+
+
+
+```{r chunk_101}
+#DIVORCED
+merged_data_assets_2 <- merged_data_assets_2 %>%
+  group_by(FPrimary) %>%
+  mutate(Together = ifelse(maritalstatus == "Divorced"  & n() > 1, 1, 0))
+
+
+# Output the modified data frame
+print(merged_data_assets_2)
+
+# Now the Together column will contain 1 where the conditions are met, otherwise 0
+Tog<-merged_data_assets_2$Together
+
+summary(Tog)
+
+Tog
+
+Married_tog <- subset(merged_data_assets_2, Together == "1")
+
+married_tog_fatherwork_counts <- table(Married_tog$fatherwork)
+
+# Create a pie chart for fatherwork
+married_tog_fatherwork_df <- as.data.frame(married_tog_fatherwork_counts)
+ggplot(married_tog_fatherwork_df, aes(x = "", y = Freq, fill = Var1)) +
+  geom_bar(width = 1, stat = "identity") +
+  coord_polar("y", start = 0) +
+  labs(title = "Fatherwork Categories") +
+  theme_void()
+
+# Count the categories for motherwork
+married_tog_motherwork_counts <- table(Married_tog$motherwork)
+
+# Create a pie chart for motherwork
+married_tog_motherwork_df <- as.data.frame(married_tog_motherwork_counts)
+ggplot(married_motherwork_df, aes(x = "", y = Freq, fill = Var1)) +
+  geom_bar(width = 1, stat = "identity") +
+  coord_polar("y", start = 0) +
+  labs(title = "Motherwork Categories") +
+  theme_void()
+
+
+# Count the categories and calculate percentages for fatherwork
+married_tog_fatherwork_percentages <- calculate_percentages(married_tog_fatherwork_counts)
+
+married_tog_motherwork_percentages <- calculate_percentages(married_tog_motherwork_counts)
+
+# Print the percentages for fatherwork
+cat("Percentages for Fatherwork Categories:\n")
+print(married_tog_fatherwork_percentages)
+
+# Print the percentages for motherwork
+cat("Percentages for Motherwork Categories:\n")
+print(married_tog_motherwork_percentages)
+
+```
+
+
+
+
+
+```{r chunk_8}
+#SINGLE
+
+library(dplyr)
+
+# Assuming merged_data_assets_2 is a data frame with columns FPrimary, marital_status, and age
+
+# Create the 'Single' column based on the specified conditions
+merged_data_assets_2 <- merged_data_assets_2 %>%
+  group_by(FPrimary) %>%
+  mutate(Single = ifelse(marital_status == "Never married" & age > 18 & n() > 1, 1, 0)) %>%
+  ungroup()
+
+# Output the modified data frame
+print(merged_data_assets_2)
+
+
+
+# Output the modified data frame
+print(merged_data_assets_2)
+
+# Now the Together column will contain 1 where the conditions are met, otherwise 0
+Tog<-merged_data_assets_2$Together
+
+summary(Tog)
+
+Tog
+
+Married_tog <- subset(merged_data_assets_2, Together == "1")
+
+married_tog_fatherwork_counts <- table(Married_tog$fatherwork)
+
+# Create a pie chart for fatherwork
+married_tog_fatherwork_df <- as.data.frame(married_tog_fatherwork_counts)
+ggplot(married_tog_fatherwork_df, aes(x = "", y = Freq, fill = Var1)) +
+  geom_bar(width = 1, stat = "identity") +
+  coord_polar("y", start = 0) +
+  labs(title = "Fatherwork Categories") +
+  theme_void()
+
+# Count the categories for motherwork
+married_tog_motherwork_counts <- table(Married_tog$motherwork)
+
+# Create a pie chart for motherwork
+married_tog_motherwork_df <- as.data.frame(married_tog_motherwork_counts)
+ggplot(married_motherwork_df, aes(x = "", y = Freq, fill = Var1)) +
+  geom_bar(width = 1, stat = "identity") +
+  coord_polar("y", start = 0) +
+  labs(title = "Motherwork Categories") +
+  theme_void()
+
+
+# Count the categories and calculate percentages for fatherwork
+married_tog_fatherwork_percentages <- calculate_percentages(married_tog_fatherwork_counts)
+
+married_tog_motherwork_percentages <- calculate_percentages(married_tog_motherwork_counts)
+
+# Print the percentages for fatherwork
+cat("Percentages for Fatherwork Categories:\n")
+print(married_tog_fatherwork_percentages)
+
+# Print the percentages for motherwork
+cat("Percentages for Motherwork Categories:\n")
+print(married_tog_motherwork_percentages)
+
+```
+
+producedcedis is the overall production, not per unit 
+
+```{r chunk_9}
+
+merged_data_assets_2 <- merged_data_assets_2 %>%
+  group_by(FPrimary) %>%
+  mutate(TotalProducedCedis = sum(producedcedis, na.rm = TRUE)) %>%
+  ungroup()
+
+
+# Filter the data for maritalstatus == "MARRIED"
+married_data <- merged_data_assets_2 %>%
+  filter(maritalstatus.x == "Married")
+
+# Group by FPrimary and calculate the sum of TotalProducedCedis
+sum_data <- married_data %>%
+  group_by(FPrimary) %>%
+  summarise(SumTotalProducedCedis = sum(TotalProducedCedis, na.rm = TRUE)) %>%
+  ungroup()
+
+sum_data
+
+
+# Plot the distribution using a histogram with adjusted x-axis limits
+ggplot(sum_data, aes(x = SumTotalProducedCedis)) +
+  geom_histogram(binwidth = 1000, fill = "blue", color = "black", alpha = 0.7) +
+  theme_minimal() +
+  labs(title = "Distribution of Produced Cedis for married households",
+       x = "Cedis",
+       y = "Frequency") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  xlim(c(0, 50000)) +  # Set x-axis limits (adjust these values based on your data) 
+  ylim(c(0, 100))  # Set y-axis limits (adjust these values based on your data)
+
+
+```
+
+$Y_{it} = X_{it} + \gamma + Con_{it} + Educ_{it} + Con_{it}*Educ_{it} + \epsilon$
+
+
 
 
