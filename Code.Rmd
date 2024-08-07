@@ -64,7 +64,7 @@ Utilziar houseid, checar el father work y mother work distribución por región 
 #Father/Mother work plot: Ghana
 
 ```{r Chunk_4}
-fatherwork_counts <- table(merged_data_assets_2$fatherwork)
+fatherwork_counts <- table(merged_data_assets_2$fatherwork.x)
 
 # Create a pie chart for fatherwork
 fatherwork_df <- as.data.frame(fatherwork_counts)
@@ -75,7 +75,7 @@ ggplot(fatherwork_df, aes(x = "", y = Freq, fill = Var1)) +
   theme_void()
 
 # Count the categories for motherwork
-motherwork_counts <- table(merged_data_assets_2$motherwork)
+motherwork_counts <- table(merged_data_assets_2$motherwork.x)
 
 # Create a pie chart for motherwork
 motherwork_df <- as.data.frame(motherwork_counts)
@@ -90,7 +90,7 @@ ggplot(motherwork_df, aes(x = "", y = Freq, fill = Var1)) +
 
 ## Father/mother work percentages: Ghana
 
-```{r pressure, echo=FALSE}
+```{r chunk_1223}
 # Function to calculate percentages for a categorical variable
 calculate_percentages <- function(counts) {
   percentages <- round(counts / sum(counts) * 100, 1)
@@ -138,7 +138,12 @@ whereborn_region_percentages
 #Father/Mother work plot: Ghana by region (whereborn_region) - Northern
 
 ```{r chunk_7}
-married <- subset(merged_data_assets_2, maritalstatus == "Married")
+merged_data_assets_1 <- merge(background, consumption, by = "FPrimary", all.x = TRUE)
+merged_data_assets_2 <- merge(merged_data_assets_1, food_consumption, by = "FPrimary", all.x = TRUE )
+
+merged_data_assets_2
+
+married <- subset(merged_data_assets_2, maritalstatus.x == "Married")
 
 married_fatherwork_counts <- table(married$fatherwork)
 
@@ -151,7 +156,7 @@ ggplot(married_fatherwork_df, aes(x = "", y = Freq, fill = Var1)) +
   theme_void()
 
 # Count the categories for motherwork
-married_motherwork_counts <- table(married$motherwork)
+married_motherwork_counts <- table(married$motherwork.x)
 
 # Create a pie chart for motherwork
 married_motherwork_df <- as.data.frame(married_motherwork_counts)
@@ -199,6 +204,10 @@ Hacer el match de cuantos fathers y mothers hacen matching en los trabajos que t
 
 
 ```{r chunk_18}
+merged_data_assets_1 <- merge(background, consumption, by = "FPrimary", all.x = TRUE)
+merged_data_assets_2 <- merge(merged_data_assets_1, food_consumption, by = "FPrimary", all.x = TRUE )
+
+
 merged_data_assets_2 <- merged_data_assets_2 %>%
   group_by(FPrimary) %>%
   mutate(Together = ifelse(maritalstatus == "Married" & n() > 1, 1, 0))
@@ -258,6 +267,11 @@ print(married_tog_motherwork_percentages)
 
 
 ```{r chunk_101}
+
+merged_data_assets_1 <- merge(background, consumption, by = "FPrimary", all.x = TRUE)
+merged_data_assets_2 <- merge(merged_data_assets_1, food_consumption, by = "FPrimary", all.x = TRUE )
+
+
 #DIVORCED
 merged_data_assets_2 <- merged_data_assets_2 %>%
   group_by(FPrimary) %>%
@@ -318,51 +332,58 @@ print(married_tog_motherwork_percentages)
 
 
 ```{r chunk_8}
-#SINGLE
 
-library(dplyr)
+merged_data_assets_1 <- merge(background, consumption, by = "FPrimary", all.x = TRUE)
+merged_data_assets_2 <- merge(merged_data_assets_1, food_consumption, by = "FPrimary", all.x = TRUE )
 
-# Assuming merged_data_assets_2 is a data frame with columns FPrimary, marital_status, and age
+#SINGLE = 18
 
-# Create the 'Single' column based on the specified conditions
+mean_age_married <- merged_data_assets_2 %>%
+  filter(maritalstatus.x == "Married") %>%
+  summarize(mean_age = mean(age.x, na.rm = TRUE))
+
+# Print the result
+print(mean_age_married)
+#46
+
+
+
+# Assuming merged_data_assets_2 is a data frame with columns age and maritalstatus
+
+# Create the 'Single_household' column based on the specified conditions
 merged_data_assets_2 <- merged_data_assets_2 %>%
-  group_by(FPrimary) %>%
-  mutate(Single = ifelse(marital_status == "Never married" & age > 18 & n() > 1, 1, 0)) %>%
-  ungroup()
-
-# Output the modified data frame
-print(merged_data_assets_2)
-
-
+  mutate(Single_household = ifelse(age.x > 18 & maritalstatus.x == "Never married", 1, 0))
 
 # Output the modified data frame
 print(merged_data_assets_2)
 
 # Now the Together column will contain 1 where the conditions are met, otherwise 0
-Tog<-merged_data_assets_2$Together
+Sing <-merged_data_assets_2$Single_household
 
-summary(Tog)
+summary(Sing)
 
-Tog
+Sing
 
-Married_tog <- subset(merged_data_assets_2, Together == "1")
+Sing_hh <- subset(merged_data_assets_2, Single_household == "1")
 
-married_tog_fatherwork_counts <- table(Married_tog$fatherwork)
+
+sing_fatherwork_counts <- table(Sing_hh$fatherwork.x)
 
 # Create a pie chart for fatherwork
-married_tog_fatherwork_df <- as.data.frame(married_tog_fatherwork_counts)
-ggplot(married_tog_fatherwork_df, aes(x = "", y = Freq, fill = Var1)) +
+sing_fatherwork_df <- as.data.frame(sing_fatherwork_counts)
+ggplot(sing_fatherwork_df, aes(x = "", y = Freq, fill = Var1)) +
   geom_bar(width = 1, stat = "identity") +
   coord_polar("y", start = 0) +
   labs(title = "Fatherwork Categories") +
   theme_void()
 
+
 # Count the categories for motherwork
-married_tog_motherwork_counts <- table(Married_tog$motherwork)
+sing_motherwork_counts <- table(Sing_hh$motherwork.x)
 
 # Create a pie chart for motherwork
-married_tog_motherwork_df <- as.data.frame(married_tog_motherwork_counts)
-ggplot(married_motherwork_df, aes(x = "", y = Freq, fill = Var1)) +
+sing_motherwork_df <- as.data.frame(sing_motherwork_counts)
+ggplot(sing_motherwork_df, aes(x = "", y = Freq, fill = Var1)) +
   geom_bar(width = 1, stat = "identity") +
   coord_polar("y", start = 0) +
   labs(title = "Motherwork Categories") +
@@ -370,23 +391,29 @@ ggplot(married_motherwork_df, aes(x = "", y = Freq, fill = Var1)) +
 
 
 # Count the categories and calculate percentages for fatherwork
-married_tog_fatherwork_percentages <- calculate_percentages(married_tog_fatherwork_counts)
+sing_fatherwork_percentages <- calculate_percentages(sing_fatherwork_counts)
 
-married_tog_motherwork_percentages <- calculate_percentages(married_tog_motherwork_counts)
+sing_motherwork_percentages <- calculate_percentages(sing_motherwork_counts)
 
 # Print the percentages for fatherwork
 cat("Percentages for Fatherwork Categories:\n")
-print(married_tog_fatherwork_percentages)
+print(sing_fatherwork_percentages)
 
 # Print the percentages for motherwork
 cat("Percentages for Motherwork Categories:\n")
-print(married_tog_motherwork_percentages)
+print(sing_motherwork_percentages)
 
 ```
 
 producedcedis is the overall production, not per unit 
 
 ```{r chunk_9}
+
+
+merged_data_assets_1 <- merge(background, consumption, by = "FPrimary", all.x = TRUE)
+merged_data_assets_2 <- merge(merged_data_assets_1, food_consumption, by = "FPrimary", all.x = TRUE )
+
+#MARRIED 
 
 merged_data_assets_2 <- merged_data_assets_2 %>%
   group_by(FPrimary) %>%
@@ -411,7 +438,44 @@ sum_data
 ggplot(sum_data, aes(x = SumTotalProducedCedis)) +
   geom_histogram(binwidth = 1000, fill = "blue", color = "black", alpha = 0.7) +
   theme_minimal() +
-  labs(title = "Distribution of Produced Cedis for married households",
+  labs(title = "Distribution of Produced Cedis for Married households",
+       x = "Cedis",
+       y = "Frequency") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  xlim(c(0, 50000)) +  # Set x-axis limits (adjust these values based on your data) 
+  ylim(c(0, 100))  # Set y-axis limits (adjust these values based on your data)
+
+
+```
+```{r chunk_11}
+merged_data_assets_1 <- merge(background, consumption, by = "FPrimary", all.x = TRUE)
+merged_data_assets_2 <- merge(merged_data_assets_1, food_consumption, by = "FPrimary", all.x = TRUE )
+
+
+merged_data_assets_2 <- merged_data_assets_2 %>%
+  group_by(FPrimary) %>%
+  mutate(TotalProducedCedis = sum(producedcedis, na.rm = TRUE)) %>%
+  ungroup()
+
+
+# Filter the data 
+single_data <- merged_data_assets_2 %>%
+  filter(Single_household == 1)
+
+# Group by FPrimary and calculate the sum of TotalProducedCedis
+sum_data_single <- single_data %>%
+  group_by(FPrimary) %>%
+  summarise(SumTotalProducedCedis = sum(TotalProducedCedis, na.rm = TRUE)) %>%
+  ungroup()
+
+sum_data_single
+
+
+# Plot the distribution using a histogram with adjusted x-axis limits
+ggplot(sum_data_single, aes(x = SumTotalProducedCedis)) +
+  geom_histogram(binwidth = 1000, fill = "blue", color = "black", alpha = 0.7) +
+  theme_minimal() +
+  labs(title = "Distribution of Produced Cedis for Single households",
        x = "Cedis",
        y = "Frequency") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
@@ -421,8 +485,192 @@ ggplot(sum_data, aes(x = SumTotalProducedCedis)) +
 
 ```
 
+
+
+
+
+```{r chunk_122}
+
+merged_data_assets_1 <- merge(background, consumption, by = "FPrimary", all.x = TRUE)
+merged_data_assets_2 <- merge(merged_data_assets_1, food_consumption, by = "FPrimary", all.x = TRUE )
+
+
+#SINGLE = 23.7 (World Bank)
+
+mean_age_married <- merged_data_assets_2 %>%
+  filter(maritalstatus.x == "Married") %>%
+  summarize(mean_age = mean(age.x, na.rm = TRUE))
+
+# Print the result
+print(mean_age_married)
+#46
+
+
+
+# Assuming merged_data_assets_2 is a data frame with columns age and maritalstatus
+
+# Create the 'Single_household' column based on the specified conditions
+merged_data_assets_2 <- merged_data_assets_2 %>%
+  mutate(Single_household = ifelse(age.x > 22 & maritalstatus.x == "Never married", 1, 0))
+
+# Output the modified data frame
+print(merged_data_assets_2)
+
+# Now the Together column will contain 1 where the conditions are met, otherwise 0
+Sing <-merged_data_assets_2$Single_household
+
+summary(Sing)
+
+Sing
+
+Sing_hh <- subset(merged_data_assets_2, Single_household == "1")
+
+
+sing_fatherwork_counts <- table(Sing_hh$fatherwork.x)
+
+# Create a pie chart for fatherwork
+sing_fatherwork_df <- as.data.frame(sing_fatherwork_counts)
+ggplot(sing_fatherwork_df, aes(x = "", y = Freq, fill = Var1)) +
+  geom_bar(width = 1, stat = "identity") +
+  coord_polar("y", start = 0) +
+  labs(title = "Fatherwork Categories") +
+  theme_void()
+
+
+# Count the categories for motherwork
+sing_motherwork_counts <- table(Sing_hh$motherwork.x)
+
+# Create a pie chart for motherwork
+sing_motherwork_df <- as.data.frame(sing_motherwork_counts)
+ggplot(sing_motherwork_df, aes(x = "", y = Freq, fill = Var1)) +
+  geom_bar(width = 1, stat = "identity") +
+  coord_polar("y", start = 0) +
+  labs(title = "Motherwork Categories") +
+  theme_void()
+
+
+# Count the categories and calculate percentages for fatherwork
+sing_fatherwork_percentages <- calculate_percentages(sing_fatherwork_counts)
+
+sing_motherwork_percentages <- calculate_percentages(sing_motherwork_counts)
+
+# Print the percentages for fatherwork
+cat("Percentages for Fatherwork Categories:\n")
+print(sing_fatherwork_percentages)
+
+# Print the percentages for motherwork
+cat("Percentages for Motherwork Categories:\n")
+print(sing_motherwork_percentages)
+
+
+
+merged_data_assets_2 <- merged_data_assets_2 %>%
+  group_by(FPrimary) %>%
+  mutate(TotalProducedCedis = sum(producedcedis, na.rm = TRUE)) %>%
+  ungroup()
+
+
+# Filter the data for maritalstatus == "MARRIED"
+single_data <- merged_data_assets_2 %>%
+  filter(Single_household == 1)
+
+# Group by FPrimary and calculate the sum of TotalProducedCedis
+sum_data_single <- single_data %>%
+  group_by(FPrimary) %>%
+  summarise(SumTotalProducedCedis = sum(TotalProducedCedis, na.rm = TRUE)) %>%
+  ungroup()
+
+sum_data_single
+
+
+# Plot the distribution using a histogram with adjusted x-axis limits
+ggplot(sum_data_single, aes(x = SumTotalProducedCedis)) +
+  geom_histogram(binwidth = 1000, fill = "blue", color = "black", alpha = 0.7) +
+  theme_minimal() +
+  labs(title = "Distribution of Produced Cedis for Single households",
+       x = "Cedis",
+       y = "Frequency") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  xlim(c(0, 50000)) +  # Set x-axis limits (adjust these values based on your data) 
+  ylim(c(0, 100))  # Set y-axis limits (adjust these values based on your data)
+
+
+```
+
+
 $Y_{it} = X_{it} + \gamma + Con_{it} + Educ_{it} + Con_{it}*Educ_{it} + \epsilon$
 
 
+All 
+|   |      Mother       |  Father  |
+|----------|:-------------:|------:|
+| Self employed farmer |  61.5 | 63.8 |
+| Self employed trader |    24.8   | 4.9 |
 
 
+Married
+|   |      Mother       |  Father  |
+|----------|:-------------:|------:|
+| Self employed farmer |  68 | 77.4 |
+| Self employed trader |    21.8   | 4.1 |
+
+
+
+
+Single (Legal Age = 18)
+|   |      Mother       |  Father  |
+|----------|:-------------:|------:|
+| Self employed farmer |  41.9 | 46 |
+| Self employed trader |    41.1   | 6.9 |
+
+
+
+Single (Mean Age = 23.7 World bank)
+ 
+|   |      Mother       |  Father  |
+|----------|:-------------:|------:|
+| Self employed farmer |  41.2 | 44.4 |
+| Self employed trader |    42.1   | 6.9 |
+
+```{r chunk_1233}
+
+
+# Install necessary packages if not already installed
+install.packages("ggplot2")
+install.packages("sf")
+install.packages("rnaturalearth")
+install.packages("rnaturalearthdata")
+
+# Load the packages
+library(ggplot2)
+library(sf)
+library(rnaturalearth)
+library(rnaturalearthdata)
+
+# Load map data for the world
+world <- ne_countries(scale = "medium", returnclass = "sf")
+
+# Filter to get only Ghana
+ghana <- world[world$name == "Ghana", ]
+
+# Plot the map of Ghana
+ggplot(data = ghana) +
+  geom_sf(fill = "lightblue", color = "black") +
+  theme_minimal() +
+  labs(title = "Map of Ghana",
+       x = "Longitude",
+       y = "Latitude")
+
+# Plot with additional customization
+ggplot(data = ghana) +
+  geom_sf(fill = "lightgreen", color = "darkgreen") +
+  theme_minimal() +
+  labs(title = "Map of Ghana",
+       subtitle = "Showing the boundaries of Ghana",
+       x = "Longitude",
+       y = "Latitude") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
+
+```
