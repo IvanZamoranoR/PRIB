@@ -962,12 +962,16 @@ sum_data <- filtered_data %>%
 ggplot(sum_data, aes(x = SumTotalProducedCedis, fill = HouseholdType)) +
   geom_histogram(binwidth = 1000, color = "black", alpha = 0.7, position = "dodge") +
   theme_minimal() +
-  labs(title = "Distribution of Produced Cedis for Single and Married households",
-       x = "Cedis",
+  labs(title = "Distribution of Monthly Produced Cedis (₵) for Single and Married households",
+       x = "Cedis (₵)",
        y = "Frequency") +
   scale_fill_manual(values = c("Single" = "blue", "Married" = "green")) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   xlim(c(0, 50000)) +  # Set x-axis limits (adjust these values based on your data)
-  ylim(c(0, 100))  # Set y-axis limits (adjust these values based on your data)
+  geom_vline(xintercept = 2000, color = "red", linetype = "dashed", size = .7) +
+  annotate("text", x = 2000, y = max(sum_data$Frequency) * 0.5, 
+           label = "Ghana minimum living wage", color = "red", size = 3, 
+           fontface = "bold", vjust = -35, hjust = -.2)
+
 
 ```
