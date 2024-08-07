@@ -671,6 +671,303 @@ ggplot(data = ghana) +
        y = "Latitude") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
+```
 
+
+```{r chunk_1211234}
+
+merged_data_assets_1 <- merge(background, consumption, by = "FPrimary", all.x = TRUE)
+merged_data_assets_2 <- merge(merged_data_assets_1, food_consumption, by = "FPrimary", all.x = TRUE )
+
+#MARRIED 
+
+merged_data_assets_2 <- merged_data_assets_2 %>%
+  group_by(FPrimary) %>%
+  mutate(TotalProducedCedis = sum(producedcedis, na.rm = TRUE)) %>%
+  ungroup()
+
+
+# Filter the data for maritalstatus == "MARRIED"
+married_data <- merged_data_assets_2 %>%
+  filter(maritalstatus.x == "Married")
+
+# Group by FPrimary and calculate the sum of TotalProducedCedis
+sum_data <- married_data %>%
+  group_by(FPrimary) %>%
+  summarise(SumTotalProducedCedis = sum(TotalProducedCedis, na.rm = TRUE)) %>%
+  ungroup()
+
+sum_data
+
+
+# Plot the distribution using a histogram with adjusted x-axis limits
+ggplot(sum_data, aes(x = SumTotalProducedCedis)) +
+  geom_histogram(binwidth = 1000, fill = "blue", color = "black", alpha = 0.7) +
+  theme_minimal() +
+  labs(title = "Distribution of Produced Cedis for Married households",
+       x = "Cedis",
+       y = "Frequency") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  xlim(c(0, 50000)) +  # Set x-axis limits (adjust these values based on your data) 
+  ylim(c(0, 100))  # Set y-axis limits (adjust these values based on your data)
+
+
+
+merged_data_assets_1 <- merge(background, consumption, by = "FPrimary", all.x = TRUE)
+merged_data_assets_2 <- merge(merged_data_assets_1, food_consumption, by = "FPrimary", all.x = TRUE )
+
+#MARRIED 
+
+merged_data_assets_2 <- merged_data_assets_2 %>%
+  group_by(FPrimary) %>%
+  mutate(TotalProducedCedis = sum(producedcedis, na.rm = TRUE)) %>%
+  ungroup()
+
+
+# Filter the data for maritalstatus == "MARRIED"
+married_data <- merged_data_assets_2 %>%
+  filter(maritalstatus.x == "Married")
+
+# Group by FPrimary and calculate the sum of TotalProducedCedis
+sum_data <- married_data %>%
+  group_by(FPrimary) %>%
+  summarise(SumTotalProducedCedis = sum(TotalProducedCedis, na.rm = TRUE)) %>%
+  ungroup()
+
+sum_data
+
+
+# Plot the distribution using a histogram with adjusted x-axis limits
+ggplot(sum_data, aes(x = SumTotalProducedCedis)) +
+  geom_histogram(binwidth = 1000, fill = "blue", color = "black", alpha = 0.7) +
+  theme_minimal() +
+  labs(title = "Distribution of Produced Cedis for Married households",
+       x = "Cedis",
+       y = "Frequency") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  xlim(c(0, 50000)) +  # Set x-axis limits (adjust these values based on your data) 
+  ylim(c(0, 100))  # Set y-axis limits (adjust these values based on your data)
+
+
+```
+
+
+```{r chunk_121434}
+# Merge datasets
+merged_data_assets_1 <- merge(background, consumption, by = "FPrimary", all.x = TRUE)
+merged_data_assets_2 <- merge(merged_data_assets_1, food_consumption, by = "FPrimary", all.x = TRUE)
+
+# Create the 'Single_household' column based on the specified conditions
+merged_data_assets_2 <- merged_data_assets_2 %>%
+  mutate(Single_household = ifelse(age.x > 18 & maritalstatus.x == "Never married", 1, 0))
+
+# Calculate TotalProducedCedis
+merged_data_assets_2 <- merged_data_assets_2 %>%
+  group_by(FPrimary) %>%
+  mutate(TotalProducedCedis = sum(producedcedis, na.rm = TRUE)) %>%
+  ungroup()
+
+# Filter the data for married and single households and calculate SumTotalProducedCedis
+household_data <- merged_data_assets_2 %>%
+  mutate(MaritalStatus = ifelse(Single_household == 1, "Single", maritalstatus.x)) %>%
+  filter(MaritalStatus %in% c("Married", "Single"))
+
+# Define bins for the cedis distribution
+bins <- seq(0, 50000, by = 5000)  # Adjust bin width and range as needed
+
+# Categorize TotalProducedCedis into bins
+household_data <- household_data %>%
+  mutate(CedisRange = cut(TotalProducedCedis, breaks = bins, include.lowest = TRUE, labels = FALSE))
+
+# Count the frequency of households in each cedis range and marital status
+distribution_data <- household_data %>%
+  group_by(CedisRange, MaritalStatus) %>%
+  summarise(Frequency = n()) %>%
+  ungroup()
+
+# Convert CedisRange to a factor with appropriate labels
+distribution_data$CedisRange <- factor(distribution_data$CedisRange, 
+                                       levels = 1:(length(bins) - 1),
+                                       labels = paste(bins[-length(bins)], bins[-1], sep = "-"))
+
+# Plot the clustered bar graph
+ggplot(distribution_data, aes(x = CedisRange, y = Frequency, fill = MaritalStatus)) +
+  geom_bar(stat = "identity", position = "dodge", color = "black") +
+  scale_fill_manual(values = c("Married" = "blue", "Single" = "red")) +
+  theme_minimal() +
+  labs(title = "Distribution of Produced Cedis for Married and Single Households",
+       x = "Cedis Range",
+       y = "Frequency") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
+```
+
+
+
+```{r chunk_664}
+merged_data_assets_1 <- merge(background, consumption, by = "FPrimary", all.x = TRUE)
+merged_data_assets_2 <- merge(merged_data_assets_1, food_consumption, by = "FPrimary", all.x = TRUE )
+
+
+merged_data_assets_2 <- merged_data_assets_2 %>%
+  group_by(FPrimary) %>%
+  mutate(TotalProducedCedis = sum(producedcedis, na.rm = TRUE)) %>%
+  ungroup()
+
+
+# Filter the data 
+single_data <- merged_data_assets_2 %>%
+  filter(Single_household == 1)
+
+# Group by FPrimary and calculate the sum of TotalProducedCedis
+sum_data_single <- single_data %>%
+  group_by(FPrimary) %>%
+  summarise(SumTotalProducedCedis = sum(TotalProducedCedis, na.rm = TRUE)) %>%
+  ungroup()
+
+sum_data_single
+
+
+# Plot the distribution using a histogram with adjusted x-axis limits
+ggplot(sum_data_single, aes(x = SumTotalProducedCedis)) +
+  geom_histogram(binwidth = 1000, fill = "blue", color = "black", alpha = 0.7) +
+  theme_minimal() +
+  labs(title = "Distribution of Produced Cedis for Single households",
+       x = "Cedis",
+       y = "Frequency") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  xlim(c(0, 50000)) +  # Set x-axis limits (adjust these values based on your data) 
+  ylim(c(0, 100))  # Set y-axis limits (adjust these values based on your data)
+
+
+merged_data_assets_1 <- merge(background, consumption, by = "FPrimary", all.x = TRUE)
+merged_data_assets_2 <- merge(merged_data_assets_1, food_consumption, by = "FPrimary", all.x = TRUE )
+
+#SINGLE = 18
+
+mean_age_married <- merged_data_assets_2 %>%
+  filter(maritalstatus.x == "Married") %>%
+  summarize(mean_age = mean(age.x, na.rm = TRUE))
+
+# Print the result
+print(mean_age_married)
+#46
+
+
+
+# Assuming merged_data_assets_2 is a data frame with columns age and maritalstatus
+
+# Create the 'Single_household' column based on the specified conditions
+merged_data_assets_2 <- merged_data_assets_2 %>%
+  mutate(Single_household = ifelse(age.x > 18 & maritalstatus.x == "Never married", 1, 0))
+  
+  
+  -------------
+  
+  
+  
+
+merged_data_assets_1 <- merge(background, consumption, by = "FPrimary", all.x = TRUE)
+merged_data_assets_2 <- merge(merged_data_assets_1, food_consumption, by = "FPrimary", all.x = TRUE )
+
+#MARRIED 
+
+merged_data_assets_2 <- merged_data_assets_2 %>%
+  group_by(FPrimary) %>%
+  mutate(TotalProducedCedis = sum(producedcedis, na.rm = TRUE)) %>%
+  ungroup()
+
+
+# Filter the data for maritalstatus == "MARRIED"
+married_data <- merged_data_assets_2 %>%
+  filter(maritalstatus.x == "Married")
+
+# Group by FPrimary and calculate the sum of TotalProducedCedis
+sum_data <- married_data %>%
+  group_by(FPrimary) %>%
+  summarise(SumTotalProducedCedis = sum(TotalProducedCedis, na.rm = TRUE)) %>%
+  ungroup()
+
+sum_data
+
+
+# Plot the distribution using a histogram with adjusted x-axis limits
+ggplot(sum_data, aes(x = SumTotalProducedCedis)) +
+  geom_histogram(binwidth = 1000, fill = "blue", color = "black", alpha = 0.7) +
+  theme_minimal() +
+  labs(title = "Distribution of Produced Cedis for Married households",
+       x = "Cedis",
+       y = "Frequency") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  xlim(c(0, 50000)) +  # Set x-axis limits (adjust these values based on your data) 
+  ylim(c(0, 100))  # Set y-axis limits (adjust these values based on your data)
+```
+
+
+```{r chunk_664}
+
+# Assuming merged_data_assets_2 is the combined dataset with TotalProducedCedis calculated
+
+# Create a new column 'HouseholdType' based on marital status
+merged_data_assets_2 <- merged_data_assets_2 %>%
+  mutate(HouseholdType = ifelse(Single_household == 1, "Single", 
+                                ifelse(maritalstatus.x == "Married", "Married", "Other")))
+
+# Filter only Single and Married households
+filtered_data <- merged_data_assets_2 %>%
+  filter(HouseholdType %in% c("Single", "Married"))
+
+# Group by FPrimary and HouseholdType, calculate the sum of TotalProducedCedis
+sum_data <- filtered_data %>%
+  group_by(FPrimary, HouseholdType) %>%
+  summarise(SumTotalProducedCedis = sum(TotalProducedCedis, na.rm = TRUE)) %>%
+  ungroup()
+
+# Plot the distribution using a histogram, differentiating by HouseholdType
+ggplot(sum_data, aes(x = SumTotalProducedCedis, fill = HouseholdType)) +
+  geom_histogram(binwidth = 1000, color = "black", alpha = 0.7, position = "identity") +
+  theme_minimal() +
+  labs(title = "Distribution of Produced Cedis for Single and Married households",
+       x = "Cedis",
+       y = "Frequency") +
+  scale_fill_manual(values = c("Single" = "blue", "Married" = "green")) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  xlim(c(0, 50000)) +  # Set x-axis limits (adjust these values based on your data)
+  ylim(c(0, 100))  # Set y-axis limits (adjust these values based on your data)
+
+```
+
+
+```{r chunk_664}
+
+# Assuming merged_data_assets_2 is the combined dataset with TotalProducedCedis calculated
+
+# Create a new column 'HouseholdType' based on marital status
+merged_data_assets_2 <- merged_data_assets_2 %>%
+  mutate(HouseholdType = ifelse(Single_household == 1, "Single", 
+                                ifelse(maritalstatus.x == "Married", "Married", "Other")))
+
+# Filter only Single and Married households
+filtered_data <- merged_data_assets_2 %>%
+  filter(HouseholdType %in% c("Single", "Married"))
+
+# Group by FPrimary and HouseholdType, calculate the sum of TotalProducedCedis
+sum_data <- filtered_data %>%
+  group_by(FPrimary, HouseholdType) %>%
+  summarise(SumTotalProducedCedis = sum(TotalProducedCedis, na.rm = TRUE)) %>%
+  ungroup()
+
+# Plot the distribution using a histogram, differentiating by HouseholdType
+ggplot(sum_data, aes(x = SumTotalProducedCedis, fill = HouseholdType)) +
+  geom_histogram(binwidth = 1000, color = "black", alpha = 0.7, position = "dodge") +
+  theme_minimal() +
+  labs(title = "Distribution of Produced Cedis for Single and Married households",
+       x = "Cedis",
+       y = "Frequency") +
+  scale_fill_manual(values = c("Single" = "blue", "Married" = "green")) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  xlim(c(0, 50000)) +  # Set x-axis limits (adjust these values based on your data)
+  ylim(c(0, 100))  # Set y-axis limits (adjust these values based on your data)
 
 ```
